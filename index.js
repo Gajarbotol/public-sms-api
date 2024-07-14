@@ -4,6 +4,7 @@ const app = express();
 const fs = require('fs');
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 // Configuration 
 let MAX_MESSAGES = 500;
@@ -71,6 +72,7 @@ app.get('/admin', (req, res) => {
         <form method="post" action="/admin/set-limit">
             <label for="limit">New Message Limit:</label>
             <input type="number" id="limit" name="limit" value="${MAX_MESSAGES}">
+            <input type="hidden" name="password" value="${ADMIN_PASSWORD}">
             <button type="submit">Set Limit</button>
         </form>
         <h2>Sent Messages</h2>
