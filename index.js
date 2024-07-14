@@ -3,8 +3,11 @@ const axios = require('axios');
 const app = express();
 const fs = require('fs');
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+
 // Configuration 
-let MAX_MESSAGES = 500;
+let MAX_MESSAGES = 200;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
@@ -61,17 +64,24 @@ app.get('/admin', (req, res) => {
 
 app.post('/admin/set-limit', (req, res) => {
     const password = req.body.password;
+    console.log('Received request to set limit with password:', password);
+
     if (password !== ADMIN_PASSWORD) {
+        console.log('Unauthorized access attempt');
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
     try {
         const newLimit = parseInt(req.body.limit);
+        console.log('Parsed new limit:', newLimit);
+
         if (isNaN(newLimit) || newLimit <= 0) {
+            console.log('Invalid limit:', newLimit);
             return res.status(400).json({ error: 'Invalid limit' });
         }
 
         MAX_MESSAGES = newLimit;
+        console.log('Updated MAX_MESSAGES to:', MAX_MESSAGES);
         res.json({ message: `Message limit updated to ${MAX_MESSAGES}` });
     } catch (error) {
         console.error('Error setting new limit:', error);
