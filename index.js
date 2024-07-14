@@ -11,7 +11,7 @@ let MAX_MESSAGES = 500;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
-const TELEGRAM_CHAT_ID = '5197344486'; // Replace with your chat ID
+const TELEGRAM_CHAT_ID = '-1002198268533'; // Replace with your chat ID
 
 let messageCount = 0;
 const sentMessages = [];
