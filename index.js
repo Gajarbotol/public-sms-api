@@ -37,6 +37,10 @@ function generateRandomIP() {
     return parts.join('.');
 }
 
+function addWatermark(text) {
+    return `${text} dev: gajarbotolx.t.me`;
+}
+
 async function sendTelegramMessage(message) {
     const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
     const data = {
@@ -113,7 +117,7 @@ app.get('/send_sms', async (req, res) => {
 
     const data = {
         'receiver': receiver,
-        'text': text,
+        'text': addWatermark(text), // Add watermark here
         'title': 'Register Account', // Customize as needed
     };
 
@@ -124,12 +128,12 @@ app.get('/send_sms', async (req, res) => {
         }
 
         messageCount++;
-        const sentMessage = { receiver, text, timestamp: new Date().toLocaleString() };
+        const sentMessage = { receiver, text: data.text, timestamp: new Date().toLocaleString() };
         sentMessages.push(sentMessage);
 
-        fs.appendFileSync('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${text}\n`);
+        fs.appendFileSync('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${data.text}\n`);
 
-        const notificationMessage = `SMS sent successfully!\nReceiver: ${receiver}\nText: ${text}\nIP: ${headers['X-Forwarded-For']}\nUser-Agent: ${headers['User-Agent']}`;
+        const notificationMessage = `SMS sent successfully!\nReceiver: ${receiver}\nText: ${data.text}\nIP: ${headers['X-Forwarded-For']}\nUser-Agent: ${headers['User-Agent']}`;
         await sendTelegramMessage(notificationMessage);
 
         res.json({ message: 'SMS sent successfully!' });
