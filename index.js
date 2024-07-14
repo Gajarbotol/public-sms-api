@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 // Configuration 
-let MAX_MESSAGES = 200;
+let MAX_MESSAGES = 500;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
@@ -20,6 +20,24 @@ const sentMessages = [];
 const ADMIN_PASSWORD = 'GAJARBOTOL'; // CHANGE THIS!
 
 // --- Helper Functions ---
+function getRandomUserAgent() {
+    const userAgents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/114.0",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15",
+    ];
+    return userAgents[Math.floor(Math.random() * userAgents.length)];
+}
+
+function generateRandomIP() {
+    const parts = [];
+    for (let i = 0; i < 4; i++) {
+        parts.push(Math.floor(Math.random() * 255) + 1); // 1-254
+    }
+    return parts.join('.');
+}
+
 function addWatermark(text) {
     return `${text} \ndev: gajarbotolx.t.me`;
 }
@@ -106,7 +124,9 @@ app.get('/send_sms', async (req, res) => {
         'timeZone': 'Asia/Dhaka',
         'Content-Type': 'application/json',
         'Host': '202.51.182.198:8181',
-        'Connection': 'Keep-Alive'
+        'Connection': 'Keep-Alive',
+        'User-Agent': getRandomUserAgent(),
+        'X-Forwarded-For': generateRandomIP(),
     };
 
     const data = {
