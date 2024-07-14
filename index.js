@@ -3,9 +3,6 @@ const axios = require('axios');
 const app = express();
 const fs = require('fs');
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
-
 // Configuration 
 let MAX_MESSAGES = 500;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
@@ -145,8 +142,27 @@ app.get('/send_sms', async (req, res) => {
     }
 });
 
-// --@ Server Start ---
+// --- Keep-Alive Route ---
+app.get('/keep_alive', (req, res) => {
+    res.send('Server is alive');
+});
+
+// --- Server Start ---
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
     console.log(`SMS server listening at http://localhost:${port}`);
 });
+
+// --- Keep-Alive Ping ---
+const keepAlive = () => {
+    axios.get(`http://localhost:${port}/keep_alive`)
+        .then(response => {
+            console.log('Keep-alive ping successful:', response.status);
+        })
+        .catch(error => {
+            console.error('Error during keep-alive ping:', error.message);
+        });
+};
+
+// Ping the server every 5 minutes (300,000 milliseconds)
+setInterval(keepAlive, 300000);
