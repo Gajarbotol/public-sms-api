@@ -38,7 +38,7 @@ function generateRandomIP() {
 }
 
 function addWatermark(text) {
-    return `${text} dev: gajarbotolx.t.me`;
+    return `${text} \ndev: gajarbotolx.t.me`;
 }
 
 async function sendTelegramMessage(message) {
