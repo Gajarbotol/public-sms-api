@@ -17,24 +17,6 @@ const sentMessages = [];
 const ADMIN_PASSWORD = 'GAJARBOTOL'; // CHANGE THIS!
 
 // --- Helper Functions ---
-function getRandomUserAgent() {
-    const userAgents = [
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/114.0",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15",
-    ];
-    return userAgents[Math.floor(Math.random() * userAgents.length)];
-}
-
-function generateRandomIP() {
-    const parts = [];
-    for (let i = 0; i < 4; i++) {
-        parts.push(Math.floor(Math.random() * 255) + 1); // 1-254
-    }
-    return parts.join('.');
-}
-
 function addWatermark(text) {
     return `${text} \ndev: gajarbotolx.t.me`;
 }
@@ -83,13 +65,18 @@ app.post('/admin/set-limit', (req, res) => {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const newLimit = parseInt(req.body.limit);
-    if (isNaN(newLimit) || newLimit <= 0) {
-        return res.status(400).json({ error: 'Invalid limit' });
-    }
+    try {
+        const newLimit = parseInt(req.body.limit);
+        if (isNaN(newLimit) || newLimit <= 0) {
+            return res.status(400).json({ error: 'Invalid limit' });
+        }
 
-    MAX_MESSAGES = newLimit;
-    res.json({ message: `Message limit updated to ${MAX_MESSAGES}` });
+        MAX_MESSAGES = newLimit;
+        res.json({ message: `Message limit updated to ${MAX_MESSAGES}` });
+    } catch (error) {
+        console.error('Error setting new limit:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 // --- SMS Sending Route ---
@@ -109,9 +96,7 @@ app.get('/send_sms', async (req, res) => {
         'timeZone': 'Asia/Dhaka',
         'Content-Type': 'application/json',
         'Host': '202.51.182.198:8181',
-        'Connection': 'Keep-Alive',
-        'User-Agent': getRandomUserAgent(),
-        'X-Forwarded-For': generateRandomIP(),
+        'Connection': 'Keep-Alive'
     };
 
     const data = {
@@ -132,7 +117,9 @@ app.get('/send_sms', async (req, res) => {
 
         fs.appendFileSync('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${data.text}\n`);
 
-        const notificationMessage = `SMS sent successfully!\nReceiver: ${receiver}\nText: ${data.text}\nIP: ${headers['X-Forwarded-For']}\nUser-Agent: ${headers['User-Agent']}`;
+        const realIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        const userAgent = req.headers['user-agent'];
+        const notificationMessage = `SMS sent successfully!\nReceiver: ${receiver}\nText: ${data.text}\nIP: ${realIP}\nUser-Agent: ${userAgent}`;
         await sendTelegramMessage(notificationMessage);
 
         res.json({ message: 'SMS sent successfully!' });
