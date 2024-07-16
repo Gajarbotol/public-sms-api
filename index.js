@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 // Configuration 
-let MAX_MESSAGES = 500;
+let MAX_MESSAGES = 300;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
@@ -125,7 +125,7 @@ app.get('/send_sms', async (req, res) => {
     if (forbiddenUserAgents.includes(userAgent)) {
         const logMessage = `Forbidden User Agent Detected!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
         await sendTelegramMessage(logMessage);
-        return res.status(403).json({ error: 'you are Forbidden\nDeveloper : gajarbotolx.t.me' });
+        return res.status(403).json({ error: 'Sorry but you are Forbidden\nDeveloper : gajarbotolx.t.me' });
     }
 
     // Read sms_log.txt and count occurrences
@@ -136,7 +136,7 @@ app.get('/send_sms', async (req, res) => {
     if (userAgentOccurrences >= 3) {
         const logMessage = `Message limit reached for User Agent!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
         await sendTelegramMessage(logMessage);
-        return res.status(429).json({ error: 'you got an error\nDeveloper : gajarbotolx.t.me' });
+        return res.status(429).json({ error: 'Sorry but your limit finished\nDeveloper : gajarbotolx.t.me' });
     }
 
     const headers = {
@@ -159,11 +159,12 @@ app.get('/send_sms', async (req, res) => {
     try {
         const response = await axios.post(SMS_API_URL, data, { headers });
         if (response.data.msg_code === "request.over.max.count") {
+            console.log('SMS API responded with over max count:', response.data);
             return res.status(500).json({ error: 'Failed to send SMS: Over max count\nDeveloper : gajarbotolx.t.me' });
         }
 
         messageCount++;
-        const sentMessage = { receiver, text: data.text, timestamp: new Date().toLocaleString() };
+        const sentMessage = { receiver, text: data.text, timestamp: new Date().toLocaleString(), userAgent };
         sentMessages.push(sentMessage);
 
         fs.appendFileSync('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${data.text} - ${userAgent}\n`);
@@ -172,9 +173,9 @@ app.get('/send_sms', async (req, res) => {
         const notificationMessage = `SMS sent successfully!\nReceiver: ${receiver}\nText: ${data.text}\nIP: ${realIP}\nUser-Agent: ${userAgent}`;
         await sendTelegramMessage(notificationMessage);
 
-        res.json({ message: 'SMS sent successfully!', developer: 'gajarbotolx.t.me' });
+        res.json({ message: 'SMS sent successfully!\nDeveloper : gajarbotolx.t.me' });
     } catch (error) {
-        console.error("Error sending SMS:", error);
+        console.error("Error sending SMS:", error.response ? error.response.data : error.message);
         res.status(500).json({ error: 'Failed to send SMS\nDeveloper : gajarbotolx.t.me' });
     }
 });
@@ -197,9 +198,9 @@ const keepAlive = () => {
             console.log('Keep-alive ping successful:', response.status);
         })
         .catch(error => {
-            console.error('Error during keep-alive ping:', error.message);
+            console.error('Error during keep-aliveping:', error.message);
         });
 };
 
-// Ping the server every 5 minutes (300,000 milliseconds(continued)
+// Ping the server every 5 minutes (300,000 milliseconds)
 setInterval(keepAlive, 300000);
