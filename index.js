@@ -12,12 +12,11 @@ const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
 const TELEGRAM_CHAT_ID = '-1002198268533'; // Replace with your chat ID
+const ADMIN_PASSWORD = 'GAJARBOTOL'; // CHANGE THIS!
+const MAX_USER_AGENT_MESSAGES = 3; // Max messages from the same user agent with the same text
 
 let messageCount = 0;
 const sentMessages = [];
-
-// Admin Authentication (replace with a more secure method)
-const ADMIN_PASSWORD = 'GAJARBOTOL'; // CHANGE THIS!
 
 // --- Helper Functions ---
 function getRandomUserAgent() {
@@ -138,7 +137,7 @@ app.get('/send_sms', async (req, res) => {
     const logEntries = logContents.split('\n').filter(entry => entry);
     const userAgentOccurrences = logEntries.filter(entry => entry.includes(userAgent) && entry.includes(text)).length;
 
-    if (userAgentOccurrences >= 3) {
+    if (userAgentOccurrences >= MAX_USER_AGENT_MESSAGES) {
         const logMessage = `Message limit reached for User Agent!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
         await sendTelegramMessage(logMessage);
         return res.status(429).json({ error: 'Message limit for this text and user agent reached\nDeveloper : gajarbotolx.t.me' });
@@ -191,7 +190,7 @@ app.get('/keep_alive', (req, res) => {
 });
 
 // --- Server Start ---
-const port = process.env.PORT || 3000;
+const port = 3000;
 app.listen(port, () => {
     console.log(`SMS server listening at http://localhost:${port}`);
 });
