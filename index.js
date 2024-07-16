@@ -124,7 +124,7 @@ app.get('/send_sms', async (req, res) => {
     if (forbiddenUserAgents.includes(userAgent)) {
         const logMessage = `Forbidden User Agent Detected!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
         await sendTelegramMessage(logMessage);
-        return res.status(403).json({ error: 'Forbidden user agent\nDeveloper : gajarbotolx.t.me' });
+        return res.status(403).json({ error: 'You are Forbidden\nDeveloper : gajarbotolx.t.me' });
     }
 
     try {
@@ -140,7 +140,7 @@ app.get('/send_sms', async (req, res) => {
     if (userAgentOccurrences >= MAX_USER_AGENT_MESSAGES) {
         const logMessage = `Message limit reached for User Agent!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
         await sendTelegramMessage(logMessage);
-        return res.status(429).json({ error: 'Message limit for this text and user agent reached\nDeveloper : gajarbotolx.t.me' });
+        return res.status(429).json({ error: 'You are Forbidden\nDeveloper : gajarbotolx.t.me' });
     }
 
     const headers = {
