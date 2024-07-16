@@ -1,23 +1,24 @@
 const express = require('express');
 const axios = require('axios');
+const fs = require('fs').promises; // Use promises version of fs for async/await
 const app = express();
-const fs = require('fs');
+require('dotenv').config(); // For environment variables
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
 
-// Configuration 
+// Configuration
 let MAX_MESSAGES = 500;
-const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
+const AUTH_TOKEN = process.env.AUTH_TOKEN; // Use environment variables
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
-const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
-const TELEGRAM_CHAT_ID = '-1002198268533'; // Replace with your chat ID
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN; // Use environment variables
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID; // Use environment variables
 
 let messageCount = 0;
 const sentMessages = [];
 
-// Admin Authentication (replace with a more secure method)
-const ADMIN_PASSWORD = 'GAJARBOTOL'; // CHANGE THIS!
+// Admin Authentication (use environment variable for security)
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD; // Use environment variables
 
 // --- Helper Functions ---
 function getRandomUserAgent() {
@@ -63,7 +64,7 @@ app.get('/admin', (req, res) => {
         return res.status(401).send('Unauthorized\nDeveloper : gajarbotolx.t.me');
     }
 
-    const messagesHtml = sentMessages.map((msg, i) => 
+    const messagesHtml = sentMessages.map((msg, i) =>
         `<li>${i + 1}. ${msg.timestamp} - ${msg.receiver}: ${msg.text} - ${msg.userAgent}</li>`
     ).join('');
 
@@ -128,8 +129,13 @@ app.get('/send_sms', async (req, res) => {
         return res.status(403).json({ error: 'Forbidden user agent\nDeveloper : gajarbotolx.t.me' });
     }
 
-    // Read sms_log.txt and count occurrences
-    const logContents = fs.readFileSync('sms_log.txt', 'utf8');
+    try {
+        await fs.access('sms_log.txt'); // Check if file exists
+    } catch (err) {
+        await fs.writeFile('sms_log.txt', ''); // Create file if it doesn't exist
+    }
+
+    const logContents = await fs.readFile('sms_log.txt', 'utf8');
     const logEntries = logContents.split('\n').filter(entry => entry);
     const userAgentOccurrences = logEntries.filter(entry => entry.includes(userAgent) && entry.includes(text)).length;
 
@@ -152,8 +158,8 @@ app.get('/send_sms', async (req, res) => {
 
     const data = {
         'receiver': receiver,
-        'text': addWatermark(text), // Add watermark here
-        'title': 'Register Account', // Customize as needed
+        'text': addWatermark(text),
+        'title': 'Register Account',
     };
 
     try {
@@ -167,7 +173,7 @@ app.get('/send_sms', async (req, res) => {
         const sentMessage = { receiver, text: data.text, timestamp: new Date().toLocaleString(), userAgent };
         sentMessages.push(sentMessage);
 
-        fs.appendFileSync('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${data.text} - ${userAgent}\n`);
+        await fs.appendFile('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${data.text} - ${userAgent}\n`);
 
         const realIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         const notificationMessage = `SMS sent successfully!\nReceiver: ${receiver}\nText: ${data.text}\nIP: ${realIP}\nUser-Agent: ${userAgent}`;
@@ -192,15 +198,13 @@ app.listen(port, () => {
 });
 
 // --- Keep-Alive Ping ---
-const keepAlive = () => {
-   ```javascript
-    axios.get(`http://localhost:${port}/keep_alive`)
-        .then(response => {
-            console.log('Keep-alive ping successful:', response.status);
-        })
-        .catch(error => {
-            console.error('Error during keep-alive ping:', error.message);
-        });
+const keepAlive = async () => {
+    try {
+        const response = await axios.get(`http://localhost:${port}/keep_alive`);
+        console.log('Keep-alive ping successful:', response.status);
+    } catch (error) {
+        console.error('Error during keep-alive ping:', error.message);
+    }
 };
 
 // Ping the server every 5 minutes (300,000 milliseconds)
