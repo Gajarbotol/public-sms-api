@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Configuration
-let MAX_MESSAGES = 500;
+let MAX_MESSAGES = 300;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
@@ -119,7 +119,7 @@ app.get('/send_sms', async (req, res) => {
     }
 
     const userAgent = req.headers['user-agent'];
-    const forbiddenUserAgents = ["Ruby", "python-requests/2.32.3", "TelegramBot (like TwitterBot)","Mozilla/5.0 (Linux; Android 11; vivo 1906; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/87.0.4280.141 Mobile Safari/537.36 VivoBrowser/12.4.3.0"];
+    const forbiddenUserAgents = ["Ruby", "python-requests/2.32.3", "TelegramBot (like TwitterBot)","Mozilla/5.0 (Linux; Android 11; vivo 1906; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/87.0.4280.141 Mobile Safari/537.36 VivoBrowser/12.4.3.0", "undefined", undefined];
 
     if (forbiddenUserAgents.includes(userAgent)) {
         const logMessage = `Forbidden User Agent Detected!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
