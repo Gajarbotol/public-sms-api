@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 // Configuration 
-let MAX_MESSAGES = 300;
+let MAX_MESSAGES = 500;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
@@ -64,7 +64,7 @@ app.get('/admin', (req, res) => {
     }
 
     const messagesHtml = sentMessages.map((msg, i) => 
-        `<li>${i + 1}. ${msg.timestamp} - ${msg.receiver}: ${msg.text}</li>`
+        `<li>${i + 1}. ${msg.timestamp} - ${msg.receiver}: ${msg.text} - ${msg.userAgent}</li>`
     ).join('');
 
     res.send(`
@@ -120,12 +120,12 @@ app.get('/send_sms', async (req, res) => {
     }
 
     const userAgent = req.headers['user-agent'];
-    const forbiddenUserAgents = ["Ruby", "python-requests/2.32.3","TelegramBot (like TwitterBot)"];
+    const forbiddenUserAgents = ["Ruby", "python-requests/2.32.3", "TelegramBot (like TwitterBot)"];
 
     if (forbiddenUserAgents.includes(userAgent)) {
         const logMessage = `Forbidden User Agent Detected!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
         await sendTelegramMessage(logMessage);
-        return res.status(403).json({ error: 'Sorry but you are Forbidden\nDeveloper : gajarbotolx.t.me' });
+        return res.status(403).json({ error: 'Forbidden user agent\nDeveloper : gajarbotolx.t.me' });
     }
 
     // Read sms_log.txt and count occurrences
@@ -136,7 +136,7 @@ app.get('/send_sms', async (req, res) => {
     if (userAgentOccurrences >= 3) {
         const logMessage = `Message limit reached for User Agent!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
         await sendTelegramMessage(logMessage);
-        return res.status(429).json({ error: 'Sorry but your limit finished\nDeveloper : gajarbotolx.t.me' });
+        return res.status(429).json({ error: 'Message limit for this text and user agent reached\nDeveloper : gajarbotolx.t.me' });
     }
 
     const headers = {
@@ -193,12 +193,13 @@ app.listen(port, () => {
 
 // --- Keep-Alive Ping ---
 const keepAlive = () => {
+   ```javascript
     axios.get(`http://localhost:${port}/keep_alive`)
         .then(response => {
             console.log('Keep-alive ping successful:', response.status);
         })
         .catch(error => {
-            console.error('Error during keep-aliveping:', error.message);
+            console.error('Error during keep-alive ping:', error.message);
         });
 };
 
