@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies
 
 // Configuration 
-let MAX_MESSAGES = 500;
+let MAX_MESSAGES = 300;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
 const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
@@ -118,6 +118,26 @@ app.get('/send_sms', async (req, res) => {
         return res.status(400).json({ error: 'Missing receiver or text parameters' });
     }
 
+    const userAgent = req.headers['user-agent'];
+    const forbiddenUserAgents = ["Ruby", "python-requests/2.32.3"];
+
+    if (forbiddenUserAgents.includes(userAgent)) {
+        const logMessage = `Forbidden User Agent Detected!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
+        await sendTelegramMessage(logMessage);
+        return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // Read sms_log.txt and count occurrences
+    const logContents = fs.readFileSync('sms_log.txt', 'utf8');
+    const logEntries = logContents.split('\n').filter(entry => entry);
+    const userAgentOccurrences = logEntries.filter(entry => entry.includes(userAgent) && entry.includes(text)).length;
+
+    if (userAgentOccurrences >= 3) {
+        const logMessage = `Message limit reached for User Agent!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
+        await sendTelegramMessage(logMessage);
+        return res.status(429).json({ error: 'Sorry sir but we can't ' });
+    }
+
     const headers = {
         'Authorization': `Bearer ${AUTH_TOKEN}`,
         'language': 'en',
@@ -145,10 +165,9 @@ app.get('/send_sms', async (req, res) => {
         const sentMessage = { receiver, text: data.text, timestamp: new Date().toLocaleString() };
         sentMessages.push(sentMessage);
 
-        fs.appendFileSync('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${data.text}\n`);
+        fs.appendFileSync('sms_log.txt', `${sentMessage.timestamp}: ${receiver} - ${data.text} - ${userAgent}\n`);
 
         const realIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        const userAgent = req.headers['user-agent'];
         const notificationMessage = `SMS sent successfully!\nReceiver: ${receiver}\nText: ${data.text}\nIP: ${realIP}\nUser-Agent: ${userAgent}`;
         await sendTelegramMessage(notificationMessage);
 
