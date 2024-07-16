@@ -120,7 +120,7 @@ app.get('/send_sms', async (req, res) => {
     }
 
     const userAgent = req.headers['user-agent'];
-    const forbiddenUserAgents = ["Ruby", "python-requests/2.32.3"];
+    const forbiddenUserAgents = ["Ruby", "python-requests/2.32.3","TelegramBot (like TwitterBot)"];
 
     if (forbiddenUserAgents.includes(userAgent)) {
         const logMessage = `Forbidden User Agent Detected!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
