@@ -119,7 +119,7 @@ app.get('/send_sms', async (req, res) => {
     }
 
     const userAgent = req.headers['user-agent'];
-    const forbiddenUserAgents = ["facebookexternalhit/1.1 (http://www.facebook.com/externalhit_uatext.php)","okhttp/3.9.1","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)","WhatsApp/3.0.0.0 A","Ruby", "python-requests/2.32.3", "TelegramBot (like TwitterBot)","Mozilla/5.0 (Linux; Android 11; vivo 1906; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/87.0.4280.141 Mobile Safari/537.36 VivoBrowser/12.4.3.0","undefined", undefined];
+    const forbiddenUserAgents = ["facebookexternalhit/1.1 (http://www.facebook.com/externalhit_uatext.php)","facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)","WhatsApp/3.0.0.0 A","Ruby", "python-requests/2.32.3", "TelegramBot (like TwitterBot)","Mozilla/5.0 (Linux; Android 11; vivo 1906; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/87.0.4280.141 Mobile Safari/537.36 VivoBrowser/12.4.3.0","undefined", undefined];
 
     if (forbiddenUserAgents.includes(userAgent)) {
         const logMessage = `Forbidden User Agent Detected!\nUser-Agent: ${userAgent}\nReceiver: ${receiver}\nText: ${text}`;
