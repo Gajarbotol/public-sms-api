@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 // Configuration
 let MAX_MESSAGES = 300;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
-const SMS_API_URL = 'API_URL_HERE;
+const SMS_API_URL = 'API_URL_HEREX;
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
 const TELEGRAM_CHAT_ID = '-1002198268533'; // Replace with your chat ID
 const ADMIN_PASSWORD = 'GAJARBOTOL'; // CHANGE THIS!
