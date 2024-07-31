@@ -9,7 +9,7 @@ app.use(express.urlencoded({ extended: true }));
 // Configuration
 let MAX_MESSAGES = 300;
 const AUTH_TOKEN = 'YOUR_ACTUAL_AUTH_TOKEN'; // Replace with your real token
-const SMS_API_URL = 'http://202.51.182.198:8181/nbp/sms/code';
+const SMS_API_URL = 'API_URL_HERE;
 const TELEGRAM_BOT_TOKEN = '7404527625:AAFEML9zNEOeba3eSnN62x0ESuy2nn1H-4k'; // Replace with your bot token
 const TELEGRAM_CHAT_ID = '-1002198268533'; // Replace with your chat ID
 const ADMIN_PASSWORD = 'GAJARBOTOL'; // CHANGE THIS!
@@ -148,7 +148,7 @@ app.get('/send_sms', async (req, res) => {
         'language': 'en',
         'timeZone': 'Asia/Dhaka',
         'Content-Type': 'application/json',
-        'Host': '202.51.182.198:8181',
+        'Host': 'HOST_IP_HERE',
         'Connection': 'Keep-Alive',
         'User-Agent': getRandomUserAgent(),
         'X-Forwarded-For': generateRandomIP(),
@@ -180,7 +180,7 @@ app.get('/send_sms', async (req, res) => {
         res.json({ message: 'আপাতত API বন্ধ আছে 💯 তাই অযথা চেষ্টা করে সময় নষ্ট করবেন না \nDeveloper : gajarbotolx.t.me' });
     } catch (error) {
         console.error("Error sending SMS:", error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'Failed to send SMS\nDeveloper : gajarbotolx.t.me' });
+        res.status(500).json({ error: 'আপাতত API বন্ধ আছে 💯 তাই অযথা চেষ্টা করে সময় নষ্ট করবেন না \nDeveloper : gajarbotolx.t.me' });
     }
 });
 
